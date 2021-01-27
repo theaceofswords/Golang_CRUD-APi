@@ -4,13 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"golang-training/app/models"
+	"golang-training/app/repository"
 	"net/http"
 )
 
 func viewEntry(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(" get point hit")
-	json.NewEncoder(w).Encode(models.EmployeeSlice)
+
+	//fmt.Println(models.EmployeeSlice)
+	json.NewEncoder(w).Encode(repository.GetAllEmployee())
 }
 
 func createEntry(w http.ResponseWriter, r *http.Request) {
@@ -19,8 +22,9 @@ func createEntry(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("error")
 	}
-	models.EmployeeSlice = append(models.EmployeeSlice, emp)
-	json.NewEncoder(w).Encode(models.EmployeeSlice)
+
+	// models.EmployeeSlice = append(models.EmployeeSlice, emp)
+	json.NewEncoder(w).Encode(repository.AddEmployee(emp))
 
 }
 
@@ -29,15 +33,18 @@ func deleteEntry(w http.ResponseWriter, r *http.Request) {
 	var id int
 	_ = json.NewDecoder(r.Body).Decode(&id)
 	fmt.Println("id:", id)
-	models.Remove(id)
-	json.NewEncoder(w).Encode(models.EmployeeSlice)
+
+	repository.RemoveEmployee(id)
+	//models.Remove(id)
+	//	json.NewEncoder(w).Encode(models.EmployeeSlice)
 }
 
 func updateEntry(w http.ResponseWriter, r *http.Request) {
 	var emp models.Employee
 	_ = json.NewDecoder(r.Body).Decode(&emp)
-	models.UpdateEntry(emp)
-	json.NewEncoder(w).Encode(models.EmployeeSlice)
+
+	// models.UpdateEntry(emp)
+	json.NewEncoder(w).Encode(repository.UpdateEmployee(emp))
 }
 
 //RequestHandler Expoerted

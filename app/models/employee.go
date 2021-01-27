@@ -7,10 +7,10 @@ var EmployeeSlice []Employee
 
 // Employee Exported
 type Employee struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	ID        int    `json:"id"`
-	Age       int    `json:"age"`
+	FirstName string 
+	LastName  string
+	ID        int
+	Age       int
 }
 
 func findByid(id int) int {
@@ -25,7 +25,7 @@ func findByid(id int) int {
 	return index
 }
 
-// Remove Exported
+// Remove func Exported
 func Remove(id int) {
 	index := findByid(id)
 	EmployeeSlice = append(EmployeeSlice[:index], EmployeeSlice[index+1:]...)
