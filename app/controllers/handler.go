@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"golang-training/app/models"
 	"net/http"
-	
 )
 
-func view(w http.ResponseWriter, r *http.Request) {
+func viewEntry(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(" get point hit")
 	json.NewEncoder(w).Encode(models.EmployeeSlice)
@@ -41,10 +40,10 @@ func updateEntry(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(models.EmployeeSlice)
 }
 
-//RequestHandler...
+//RequestHandler Expoerted
 func RequestHandler() {
 	fmt.Println(models.EmployeeSlice)
-	http.HandleFunc("/list", view)
+	http.HandleFunc("/view", viewEntry)
 	http.HandleFunc("/add", createEntry)
 	http.HandleFunc("/delete", deleteEntry)
 	http.HandleFunc("/update", updateEntry)
