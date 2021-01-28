@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"golang-training/app/models"
 	"golang-training/app/repository"
 	"net/http"
 	"strconv"
@@ -12,24 +11,28 @@ import (
 func employeeCRUD(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		json.NewEncoder(w).Encode(repository.GetAllEmployee())
+		json.NewEncoder(w).Encode(repository.OrmRead())
 
 	case "POST":
-		var emp models.Employee
+		var emp repository.Employee
 		err := json.NewDecoder(r.Body).Decode(&emp)
 		if err != nil {
 			fmt.Println("error")
 		}
-		json.NewEncoder(w).Encode(repository.AddEmployee(emp))
+		repository.OrmCreate(emp)
+		fmt.Fprint(w, "addded")
 
 	case "PUT":
-		var emp models.Employee
+		var emp repository.Employee
 		_ = json.NewDecoder(r.Body).Decode(&emp)
-		json.NewEncoder(w).Encode(repository.UpdateEmployee(emp))
+		repository.OrmUpdate(emp)
+		fmt.Println(w, "Updated")
 
 	case "DELETE":
-		id, _ := strconv.ParseInt(r.URL.Query().Get("userId"), 10, 8)
-		repository.RemoveEmployee(id)
+		id, _ := strconv.ParseInt(r.URL.Query().Get("userId"), 10, 64)
+		repository.OrmDelete(id)
+		fmt.Fprint(w, "deleted")
+
 	default:
 		w.WriteHeader(http.StatusNotFound)
 
@@ -39,5 +42,6 @@ func employeeCRUD(w http.ResponseWriter, r *http.Request) {
 // RequestHandler Exported
 func RequestHandler() {
 	http.HandleFunc("/employee", employeeCRUD)
+	fmt.Println("Running")
 	http.ListenAndServe(":8080", nil)
 }

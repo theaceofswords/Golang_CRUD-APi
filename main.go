@@ -2,7 +2,6 @@ package main
 
 import (
 	"golang-training/app/controllers"
-	"golang-training/app/repository"
 )
 
 func main() {
@@ -13,10 +12,9 @@ func main() {
 	// models.EmployeeSlice = []models.Employee{e1, e2}
 
 	//config.DBConn()
-	repository.ConnectDB()
+	//repository.ConnectDB()
+	//repository.OpenDB()
 	controllers.RequestHandler()
-
-	//repository.GetAllEmployee()
 
 	//fmt.Println(models.EmployeeSlice)
 }
