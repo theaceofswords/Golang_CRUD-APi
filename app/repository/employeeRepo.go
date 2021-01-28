@@ -72,7 +72,7 @@ func UpdateEmployee(emp models.Employee) []models.Employee {
 	return GetAllEmployee()
 }
 
-func RemoveEmployee(id int) {
+func RemoveEmployee(id int64) {
 	deleteStatement := `DELETE FROM tbl_employee WHERE id = $1`
 	result, err := db.Exec(deleteStatement, id)
 	checkError(err)

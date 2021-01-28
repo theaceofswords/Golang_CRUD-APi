@@ -6,6 +6,7 @@ import (
 	"golang-training/app/models"
 	"golang-training/app/repository"
 	"net/http"
+	"strconv"
 )
 
 func viewEntry(w http.ResponseWriter, r *http.Request) {
@@ -30,13 +31,11 @@ func createEntry(w http.ResponseWriter, r *http.Request) {
 
 func deleteEntry(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("delete function called")
-	var id int
-	_ = json.NewDecoder(r.Body).Decode(&id)
-	fmt.Println("id:", id)
 
+	//_ = json.NewDecoder(r.Body).Decode(&id)
+	id, _ := strconv.ParseInt(r.URL.Query().Get("userId"), 10, 8)
 	repository.RemoveEmployee(id)
-	//models.Remove(id)
-	//	json.NewEncoder(w).Encode(models.EmployeeSlice)
+
 }
 
 func updateEntry(w http.ResponseWriter, r *http.Request) {
@@ -47,8 +46,8 @@ func updateEntry(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(repository.UpdateEmployee(emp))
 }
 
-//RequestHandler Expoerted
-func RequestHandler() {
+//RHandler Expoerted
+func RHandler() {
 	fmt.Println(models.EmployeeSlice)
 	http.HandleFunc("/view", viewEntry)
 	http.HandleFunc("/add", createEntry)
