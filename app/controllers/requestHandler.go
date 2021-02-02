@@ -21,7 +21,8 @@ func employeeCRUD(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("error")
 		}
 		repository.CreateEmployee(emp)
-		fmt.Fprint(w, "addded")
+		//fmt.Fprint(w, "added ")
+		json.NewEncoder(w).Encode(emp)
 
 	case "PUT":
 		var emp models.Employee
@@ -30,7 +31,7 @@ func employeeCRUD(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Updated")
 
 	case "DELETE":
-		id, _ := strconv.ParseInt(r.URL.Query().Get("userId"), 10, 64)
+		id, _ := strconv.ParseInt(r.URL.Query().Get("EmpId"), 10, 64)
 		repository.DeleteEmployee(id)
 		fmt.Fprint(w, "deleted")
 

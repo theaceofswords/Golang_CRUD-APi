@@ -9,6 +9,7 @@ import (
 
 func ReadEmployee() []models.Employee {
 	db := config.OpenDB()
+
 	defer db.Close()
 	var emp []models.Employee
 	db.Find(&emp)

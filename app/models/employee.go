@@ -4,8 +4,8 @@ import "github.com/jinzhu/gorm"
 
 type Employee struct {
 	gorm.Model
-	FirstName string
-	LastName  string
-	EmpID     int
-	Age       int
+	FirstName string `gorm:"column:first_name" `
+	LastName  string `gorm:"column:last_name`
+	EmpID     int    `gorm:"column:emp_id;primary_key"`
+	Age       int    `gorm:"column:age`
 }
