@@ -62,12 +62,10 @@ func (s *Suite) TestReadEmployee() {
 		WillReturnRows(sqlmock.NewRows([]string{"emp_id", "first_name", "last_name", "age"}).
 			AddRow(empID, firstName, lastName, age))
 
-	res := s.empRepo.ReadEmployee()
+	res, err := s.empRepo.ReadEmployee()
 
-	//res := ReadEmployee()
 	fmt.Println(res)
 
-	var err error = nil
 	require.NoError(s.T(), err)
 
 	for _, element := range res {
@@ -77,24 +75,109 @@ func (s *Suite) TestReadEmployee() {
 
 }
 
-// func NewMock() (*sql.DB, sqlmock.Sqlmock) {
-// 	db, mock, err := sqlmock.New()
-// 	if err != nil {
-// 		log.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-// 	}
-// 	fmt.Println("connected")
+func (s *Suite) TestFindByID() {
+	var (
+		firstName = "test"
+		lastName  = "name"
+		empID     = 1
+		age       = 34
+	)
 
-// 	return db, mock
-// }
-//func TestReadEmployee(t *testing.T) {
-//db, mock := NewMock()
-// query := "SELECT id, first_name, last_name,  FROM employees"
-// rows := sqlmock.NewRows([]string{"id", "firstName", "lastName"})
-// mock.ExpectQuery(query).WillReturnRows(rows)
+	s.mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT * FROM "employees" WHERE "employees"."deleted_at" IS NULL AND ((emp_id=$1))`)).
+		WithArgs(empID).
+		WillReturnRows(sqlmock.NewRows([]string{"emp_id", "first_name", "last_name", "age"}).
+			AddRow(empID, firstName, lastName, age))
 
-// users, err := repo.Find()
-// assert.NotEmpty(t, users)
-// assert.NoError(t, err)
-// assert.Len(t, users, 1)
+	res, err := s.empRepo.FindByID(empID)
 
-//}
+	fmt.Println(res)
+
+	require.NoError(s.T(), err)
+
+	require.Nil(s.T(), deep.Equal(models.Employee{EmpID: empID, FirstName: firstName,
+		LastName: lastName, Age: age}, res))
+
+}
+
+func (s *Suite) TestUCreateEmployee() {
+	var (
+		firstName = "test2"
+		lastName  = "name2"
+		empID     = 2
+		age       = 24
+	)
+
+	emp := models.Employee{
+		FirstName: firstName,
+		LastName:  lastName,
+		EmpID:     empID,
+		Age:       age,
+	}
+
+	fmt.Println(emp)
+	//now := time.Now()
+	// s.mock.ExpectBegin()
+	// s.mock.ExpectQuery(regexp.QuoteMeta(
+	// 	`INSERT INTO "employees" ("created_at","updated_at","deleted_at","first_name","last_name","emp_id","age") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "employees"."id"`)).
+	// 	WithArgs(now, now, nil, firstName, lastName, empID, age).
+	// 	WillReturnRows(
+	// 		sqlmock.NewRows([]string{"emp_id"}).AddRow(empID))
+	s.mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO employees VALUES ($1,$2,$3,$4)`)).
+		WithArgs(firstName, lastName, empID, age)
+
+	// s.mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO employees VALUES ($1,$2,$3,$4) RETURNING employees.emp_id`)).
+	// 	WithArgs(firstName, lastName, empID, age).
+	// 	WillReturnRows(
+	// 		sqlmock.NewRows([]string{"emp_id"}).AddRow(empID))
+
+	// s.mock.ExpectQuery(`INSERT INTO employees VALUES ($1,$2,$3,$4), emp.FirstName, emp.LastName, emp.EmpID, emp.Age)`)
+
+	pkID, err := s.empRepo.CreateEmployee(emp)
+	//s.mock.ExpectCommit()
+	fmt.Println(pkID)
+
+	require.NoError(s.T(), err)
+}
+
+func (s *Suite) TestZUpdateEmployee() {
+	var (
+		firstName = "tester"
+		lastName  = "namer"
+		empID     = 1
+		age       = 34
+	)
+	emp := models.Employee{
+		FirstName: firstName,
+		LastName:  lastName,
+		EmpID:     empID,
+		Age:       age,
+	}
+	//now := time.Now()
+
+	s.mock.ExpectQuery(regexp.QuoteMeta(
+		`SELECT * FROM "employees" WHERE "employees"."deleted_at" IS NULL AND ((emp_id=$1))`)).
+		WithArgs(empID).
+		WillReturnRows(sqlmock.NewRows([]string{"emp_id", "first_name", "last_name", "age"}).
+			AddRow(empID, firstName, lastName, age))
+	//s.mock.ExpectBegin()
+	// s.mock.ExpectQuery(regexp.QuoteMeta(
+	// 	`INSERT INTO "employees" ("created_at","updated_at","deleted_at","first_name","last_name","emp_id","age") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "employees"."id"`)).
+	// 	WithArgs(now, now, nil, firstName, lastName, empID, age).
+	// 	WillReturnRows(
+	// 		sqlmock.NewRows([]string{"emp_id"}).AddRow(empID))
+	s.mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO employees VALUES ($1,$2,$3,$4)`)).
+		WithArgs(firstName, lastName, empID, age)
+	//s.mock.ExpectCommit()
+
+	// s.mock.ExpectQuery(regexp.QuoteMeta(
+	// 	`UPDATE "employees" SET ((first_name=$2)), ((last_name=$3)),((age=$4)) WHERE ((emp_id=$1))`)).
+	// 	WithArgs(empID, firstName, lastName, age).
+	// 	WillReturnRows(sqlmock.NewRows([]string{"emp_id", "first_name", "last_name", "age"}).
+	// 		AddRow(empID, firstName, lastName, age))
+
+	err := s.empRepo.UpdateEmployee(emp)
+
+	require.NoError(s.T(), err)
+
+}
