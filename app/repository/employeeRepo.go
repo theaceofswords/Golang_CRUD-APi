@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"golang-training/app/models"
 
 	"github.com/jinzhu/gorm"
@@ -10,8 +11,8 @@ type CRUD interface {
 	ReadEmployee() ([]models.Employee, error)
 	FindByID(id int) (models.Employee, error)
 	CreateEmployee(emp models.Employee) (int, error)
-	UpdateEmployee(emp models.Employee) error
-	DeleteEmployee(id int64)
+	UpdateEmployee(emp models.Employee) (models.Employee, error)
+	DeleteEmployee(id int) error
 }
 
 type repo struct {
@@ -33,34 +34,47 @@ func (p *repo) FindByID(id int) (models.Employee, error) {
 func (p *repo) CreateEmployee(emp models.Employee) (int, error) {
 	//result := p.DB.Create(&emp)
 
-	insertStatement := `INSERT INTO employees VALUES ($1,$2,$3,$4)`
+	insertStatement := `INSERT INTO employees VALUES ($1,$2,$3,$4) RETURNING emp_id`
 	//p.DB.Exec(insertStatement)
-	p.DB.Exec(insertStatement, emp.FirstName, emp.LastName, emp.EmpID, emp.Age)
+	result := p.DB.Exec(insertStatement, emp.FirstName, emp.LastName, emp.EmpID, emp.Age)
 	//p.DB.Exec(`INSERT INTO "employees" ("first_name","last_name","emp_id","age") VALUES ($1,$2,$3,$4)`,emp.FirstName, emp.LastName, emp.EmpID, emp.Age)
-
+	fmt.Println("=====", result)
 	//id := emp.ID
 	//err := result.Error
 
-	return 2, nil
+	return emp.EmpID, nil
 	//return emp.EmpID, err
 }
 
-func (p *repo) UpdateEmployee(emp models.Employee) error {
-	var oldEmp models.Employee
-	err := p.DB.Where("emp_id=?", emp.EmpID).Find(&oldEmp).Error
-	if err != nil {
-		return err
-	}
-	oldEmp.FirstName = emp.FirstName
-	oldEmp.LastName = emp.LastName
-	oldEmp.Age = emp.Age
+func (p *repo) UpdateEmployee(emp models.Employee) (models.Employee, error) {
+
+	// oldEmp.FirstName = emp.FirstName
+	// oldEmp.LastName = emp.LastName
+	// oldEmp.Age = emp.Age
 	//err = p.DB.Save(&oldEmp).Error
-	insertStatement := `INSERT INTO employees VALUES ($1,$2,$3,$4)`
-	p.DB.Exec(insertStatement, oldEmp.FirstName, oldEmp.LastName, oldEmp.EmpID, oldEmp.Age)
-	return err
+	// insertStatement := `INSERT INTO employees VALUES ($1,$2,$3,$4) RETURNING emp_id`
+	// p.DB.Exec(insertStatement, oldEmp.FirstName, oldEmp.LastName, oldEmp.EmpID, oldEmp.Age)
+	updateStatement := `UPDATE employees SET first_name = $2, last_name = $3, age = $4 WHERE emp_id = $1`
+	result := p.DB.Exec(updateStatement, emp.EmpID, emp.FirstName, emp.LastName, emp.Age)
+	fmt.Printf("%T", result)
+
+	var newEmp models.Employee
+	err := p.DB.Where("emp_id=?", emp.EmpID).Find(&newEmp).Error
+
+	return newEmp, err
 }
 
-func (p *repo) DeleteEmployee(id int64) {}
+func (p *repo) DeleteEmployee(id int) error {
+	var emp models.Employee
+	p.DB.Where("Emp_Id=?", id).Find(&emp)
+	//err := p.DB.Delete(&emp).Error
+	deleteStatement := `DELETE FROM tbl_employee WHERE id = $1`
+	result := p.DB.Exec(deleteStatement, id)
+	//count, _ := result.RowsAffected()
+	fmt.Println(result)
+
+	return nil
+}
 
 func CreateRepository(db *gorm.DB) CRUD {
 	return &repo{
