@@ -50,28 +50,37 @@ func TestInit(t *testing.T) {
 }
 
 func (s *Suite) TestReadEmployee() {
-	var (
-		firstName = "test"
-		lastName  = "name"
-		empID     = 1
-		age       = 34
-	)
+
+	empList := []models.Employee{models.Employee{
+		FirstName: "test",
+		LastName:  "name",
+		EmpID:     1,
+		Age:       34},
+
+		models.Employee{
+			FirstName: "test2",
+			LastName:  "name2",
+			EmpID:     2,
+			Age:       65}}
+	//fmt.Println(empList)
 
 	s.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT * FROM "employees"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"emp_id", "first_name", "last_name", "age"}).
-			AddRow(empID, firstName, lastName, age))
+			AddRow(1, "test", "name", 34).
+			AddRow(2, "test2", "name2", 65))
 
 	res, err := s.empRepo.ReadEmployee()
 
-	fmt.Println(res)
+	//fmt.Println(res)
 
 	require.NoError(s.T(), err)
 
-	for _, element := range res {
-		require.Nil(s.T(), deep.Equal(models.Employee{EmpID: empID, FirstName: firstName,
-			LastName: lastName, Age: age}, element))
-	}
+	// for _, element := range res {
+	// 	require.Nil(s.T(), deep.Equal(models.Employee{EmpID: empID, FirstName: firstName,
+	// 		LastName: lastName, Age: age}, element))
+	// }
+	require.Nil(s.T(), deep.Equal(empList, res))
 
 }
 
@@ -125,19 +134,17 @@ func (s *Suite) TestUCreateEmployee() {
 	// 		sqlmock.NewRows([]string{"emp_id"}).AddRow(empID))
 	s.mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO employees VALUES ($1,$2,$3,$4) RETURNING emp_id`)).
 		WithArgs(firstName, lastName, empID, age).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnResult(sqlmock.NewResult(int64(empID), 1))
 
 	// s.mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO employees VALUES ($1,$2,$3,$4) RETURNING employees.emp_id`)).
 	// 	WithArgs(firstName, lastName, empID, age).
 	// 	WillReturnRows(
 	// 		sqlmock.NewRows([]string{"emp_id"}).AddRow(empID))
-
+	//s.mock.ExpectCommit()
 	// s.mock.ExpectQuery(`INSERT INTO employees VALUES ($1,$2,$3,$4), emp.FirstName, emp.LastName, emp.EmpID, emp.Age)`)
 
 	pkID, err := s.empRepo.CreateEmployee(emp)
-	//s.mock.ExpectCommit()
-	fmt.Println(pkID)
-
+	require.Equal(s.T(), pkID, empID, "Id returned was not equal")
 	require.NoError(s.T(), err)
 }
 
