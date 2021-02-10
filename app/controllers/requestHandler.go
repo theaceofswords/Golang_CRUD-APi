@@ -9,31 +9,91 @@ import (
 	"strconv"
 )
 
+type messageErr struct {
+	ErrError   string `json:"error"`
+	ErrStatus  int    `json:"status"`
+	ErrMessage string `json:"message"`
+}
+
 func employeeCRUD(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		json.NewEncoder(w).Encode(repository.ReadEmployee())
+		id, err := strconv.ParseInt(r.URL.Query().Get("EmpId"), 10, 64)
+		if err != nil {
+			msg := messageErr{err.Error(), http.StatusUnprocessableEntity, "Invalid parameter type"}
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			json.NewEncoder(w).Encode(msg)
+			//fmt.Println(msg)
+		} else {
+			res, err := repository.ReadById(id)
+			if err != nil {
+				msg := messageErr{err.Error(), http.StatusNotFound, "Record not found"}
+				w.WriteHeader(http.StatusNotFound)
+				json.NewEncoder(w).Encode(msg)
+			} else {
+				json.NewEncoder(w).Encode(res)
+			}
+
+		}
+
+		//json.NewEncoder(w).Encode(repository.ReadEmployee())
 
 	case "POST":
 		var emp models.Employee
 		err := json.NewDecoder(r.Body).Decode(&emp)
 		if err != nil {
-			fmt.Println("error")
+			msg := messageErr{err.Error(), http.StatusUnprocessableEntity, "Invalid Body type"}
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			json.NewEncoder(w).Encode(msg)
+			//fmt.Println("error")
+		} else {
+			err = repository.CreateEmployee(emp)
+			if err != nil {
+				msg := messageErr{err.Error(), http.StatusConflict, "ID already exists"}
+				w.WriteHeader(http.StatusConflict)
+				json.NewEncoder(w).Encode(msg)
+			} else {
+				json.NewEncoder(w).Encode(emp)
+			}
+
 		}
-		repository.CreateEmployee(emp)
-		//fmt.Fprint(w, "added ")
-		json.NewEncoder(w).Encode(emp)
 
 	case "PUT":
 		var emp models.Employee
-		_ = json.NewDecoder(r.Body).Decode(&emp)
-		repository.UpdateEmployee(emp)
-		fmt.Fprint(w, "Updated")
+		err := json.NewDecoder(r.Body).Decode(&emp)
+		if err != nil {
+			msg := messageErr{err.Error(), http.StatusUnprocessableEntity, "Invalid Body type"}
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			json.NewEncoder(w).Encode(msg)
+			//fmt.Println("error")
+		} else {
+			err = repository.UpdateEmployee(emp)
+			if err != nil {
+				msg := messageErr{err.Error(), http.StatusNotFound, "Record does not exist"}
+				w.WriteHeader(http.StatusNotFound)
+				json.NewEncoder(w).Encode(msg)
+			} else {
+				fmt.Fprint(w, "Updated")
+			}
+		}
 
 	case "DELETE":
-		id, _ := strconv.ParseInt(r.URL.Query().Get("EmpId"), 10, 64)
-		repository.DeleteEmployee(id)
-		fmt.Fprint(w, "deleted")
+		id, err := strconv.ParseInt(r.URL.Query().Get("EmpId"), 10, 64)
+		if err != nil {
+			msg := messageErr{err.Error(), http.StatusUnprocessableEntity, "Invalid parameter type"}
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			json.NewEncoder(w).Encode(msg)
+		} else {
+			err := repository.DeleteEmployee(id)
+			if err != nil {
+				msg := messageErr{err.Error(), http.StatusNotFound, "Record not found"}
+				w.WriteHeader(http.StatusNotFound)
+				json.NewEncoder(w).Encode(msg)
+			} else {
+				fmt.Fprint(w, "deleted")
+			}
+
+		}
 
 	default:
 		w.WriteHeader(http.StatusNotFound)

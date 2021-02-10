@@ -17,32 +17,50 @@ func ReadEmployee() []models.Employee {
 
 }
 
-func CreateEmployee(emp models.Employee) {
-	db := config.OpenDB()
-	defer db.Close()
-
-	db.Create(&emp)
-
-}
-
-func UpdateEmployee(emp models.Employee) {
-	db := config.OpenDB()
-	defer db.Close()
-
-	var oldEmp models.Employee
-	db.Where("Emp_Id=?", emp.EmpID).Find(&oldEmp)
-	oldEmp.FirstName = emp.FirstName
-	oldEmp.LastName = emp.LastName
-	oldEmp.Age = emp.Age
-	db.Save(&oldEmp)
-}
-
-func DeleteEmployee(id int64) {
+func ReadById(id int64) (models.Employee, error) {
 	db := config.OpenDB()
 	defer db.Close()
 
 	var emp models.Employee
-	db.Where("Emp_Id=?", id).Find(&emp)
-	db.Delete(&emp)
+	err := db.Where("Emp_Id=?", id).Find(&emp).Error
+	return emp, err
+}
+
+func CreateEmployee(emp models.Employee) error {
+	db := config.OpenDB()
+	defer db.Close()
+
+	err := db.Create(&emp).Error
+	return err
+
+}
+
+func UpdateEmployee(emp models.Employee) error {
+	db := config.OpenDB()
+	defer db.Close()
+
+	var oldEmp models.Employee
+	err := db.Where("Emp_Id=?", emp.EmpID).Find(&oldEmp).Error
+	if err != nil {
+		return err
+	}
+	oldEmp.FirstName = emp.FirstName
+	oldEmp.LastName = emp.LastName
+	oldEmp.Age = emp.Age
+	err = db.Save(&oldEmp).Error
+	return err
+}
+
+func DeleteEmployee(id int64) error {
+	db := config.OpenDB()
+	defer db.Close()
+
+	var emp models.Employee
+	err := db.Where("Emp_Id=?", id).Find(&emp).Error
+	if err != nil {
+		return err
+	}
+	err = db.Delete(&emp).Error
+	return err
 
 }
