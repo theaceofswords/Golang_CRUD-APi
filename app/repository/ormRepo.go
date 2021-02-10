@@ -23,6 +23,7 @@ func ReadById(id int64) (models.Employee, error) {
 
 	var emp models.Employee
 	err := db.Where("Emp_Id=?", id).Find(&emp).Error
+	//	err := db.Where("Emp_Id=?", id).Find(&emp).Pluck("emp_id", emp.EmpID).Pluck("first_name", emp.FirstName).Pluck("last_name", emp.LastName).Pluck("age", emp.Age).Error
 	return emp, err
 }
 

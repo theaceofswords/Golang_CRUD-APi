@@ -38,13 +38,15 @@ func TestGET(t *testing.T) {
 	recorder = httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
 	response = recorder.Result()
+	resBody := recorder.Body.String()
+	fmt.Printf("%T\n", resBody)
 
-	// expected := `{"error":"strconv.ParseInt: parsing \"a\": invalid syntax","status":422,"message":"Invalid parameter type"}`
-
-	// if recorder.Body.String() != expected {
-	// 	t.Errorf("handler returned unexpected body: got %v want %v",
-	// 		recorder.Body.String(), expected)
-	// }
+	expected := `{"error":"strconv.ParseInt: parsing \"a\": invalid syntax","status":422,"message":"Invalid parameter type"}`
+	fmt.Printf("%T\n", expected)
+	if expected != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			resBody, expected)
+	}
 
 	if response.StatusCode != http.StatusUnprocessableEntity {
 		t.Errorf("Expected 422, returned %v", response.StatusCode)
@@ -81,18 +83,6 @@ func TestPOST(t *testing.T) {
 	if response.StatusCode != http.StatusOK {
 		t.Errorf("Expected Ok, returned %v", response.Status)
 	}
-
-	// expected := `{
-	// 	        "FirstName": "john",
-	// 	        "LastName": "Mathew",
-	// 	        "EmpID": 32,
-	// 	        "Age": 29
-	// 	    }`
-
-	// if recorder.Body.String() != expected {
-	// 	t.Errorf("handler returned unexpected body: got %v want %v",
-	// 		recorder.Body.String(), expected)
-	// }
 
 	fmt.Println("test2")
 
