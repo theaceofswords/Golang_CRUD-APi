@@ -1,0 +1,13 @@
+ dir=$(mktemp -d) 
+ git clone https://github.com/go-swagger/go-swagger "$dir" 
+ cd "$dir"
+ go install ./cmd/swagger
+
+ GO111MODULE=on go mod vendor
+
+ swagger generate spec -o ./swagger.yaml --scan-models (in the root of project.)
+
+ To see the resulting documentation run: swagger serve -F=swagger swagger.yaml
+
+
+

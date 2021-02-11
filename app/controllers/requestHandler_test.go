@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
 var err error
 
 var handler = http.HandlerFunc(employeeCRUD)
-
-//func TestEmployeeCRUD(t *testing.T) {
 
 func TestGET(t *testing.T) {
 	request, _ := http.NewRequest("GET", "/employee", nil)
@@ -39,13 +38,11 @@ func TestGET(t *testing.T) {
 	handler.ServeHTTP(recorder, request)
 	response = recorder.Result()
 	resBody := recorder.Body.String()
-	fmt.Printf("%T\n", resBody)
 
 	expected := `{"error":"strconv.ParseInt: parsing \"a\": invalid syntax","status":422,"message":"Invalid parameter type"}`
-	fmt.Printf("%T\n", expected)
-	if expected != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			resBody, expected)
+
+	if strings.Compare(expected, resBody) == 1 {
+		t.Errorf("handler returned unexpected body: got %v want %v", resBody, expected)
 	}
 
 	if response.StatusCode != http.StatusUnprocessableEntity {
@@ -60,6 +57,13 @@ func TestGET(t *testing.T) {
 	recorder = httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
 	response = recorder.Result()
+	resBody = recorder.Body.String()
+
+	expected = `{"error":"record not found","status":404,"message":"Record not found"}`
+
+	if strings.Compare(expected, resBody) == 1 {
+		t.Errorf("handler returned unexpected body: got %v want %v", resBody, expected)
+	}
 
 	if response.StatusCode != http.StatusNotFound {
 		t.Errorf("Expected 404, returned %v", response.StatusCode)
@@ -98,6 +102,13 @@ func TestPOST(t *testing.T) {
 
 	handler.ServeHTTP(recorder3, request)
 	response = recorder3.Result()
+	resBody := recorder3.Body.String()
+
+	expected := `{"error":"pq: duplicate key value violates unique constraint \"pk_empId\"","status":409,"message":"ID already exists"}`
+
+	if strings.Compare(expected, resBody) == 1 {
+		t.Errorf("handler returned unexpected body: got %v want %v", resBody, expected)
+	}
 	if response.StatusCode != http.StatusConflict {
 		t.Errorf("Expected 409, returned %v", response.Status)
 	}
