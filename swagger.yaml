@@ -1,14 +1,137 @@
 basePath: /
 consumes:
 - application/json
-host: some-url.com
+definitions:
+  Employee:
+    properties:
+      Age:
+        format: int64
+        type: integer
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        format: date-time
+        type: string
+      EmpID:
+        format: int64
+        type: integer
+      FirstName:
+        type: string
+      ID:
+        format: uint64
+        type: integer
+      LastName:
+        type: string
+      UpdatedAt:
+        format: date-time
+        type: string
+    type: object
+    x-go-package: golang-training/app/models
+  
+host: http://localhost:8080/employee
 info:
-  description: Documentation of our awesome API.
-  title: awesome.
+  description: Documentation of CRUD API.
+  title: CRUD API.
   version: 1.0.0
-paths: {}
+paths:
+  /employee:
+    delete:
+      operationId: idOfEmpEndpoint4
+      parameters:
+      - name: "Employee ID"
+        in: "path"
+        description: "The ID that needs to be Deleted. "
+        required: true
+        type: "string"
+      responses:
+        "200":
+          # $ref: '#/responses/_'
+          description: Successful operation.
+        "404":
+          # $ref: '#/responses/_'
+          description: Record not found
+        "422":
+          # $ref: '#/responses/_'
+          description: Invalid Parameter type
+      summary: Update existing Employee record.
+      tags:
+      - employee-tag
+    get:
+      operationId: idOfEmpEndpoint1
+      parameters:
+      - name: "Employee ID"
+        in: "path"
+        description: "The ID of employee that needs to be fetched. "
+        required: true
+        type: "string"
+      responses:
+        "200":
+          $ref: '#/responses/EmpGETResponse'
+        "404":
+          # $ref: '#/responses/_'
+          description: Record Not Found
+        "422":
+          # $ref: '#/responses/_'
+          description: Invalid Parameter type
+      summary: Retrieves single empoyee record based on parameter ID.
+      tags:
+      - employee-tag
+    post:
+      operationId: idOfEmpEndpoint2
+      parameters:
+      - description: Object to be inserted.
+        in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/Employee'
+      responses:
+        "200":
+          $ref: '#/responses/EmpPOSTResponse'
+        "409":
+          # $ref: '#/responses/_'
+          description: Record already exists
+        "422":
+          # $ref: '#/responses/_'
+          description: Invalid Body type
+      summary: Add new Employee record.
+      tags:
+      - employee-tag
+    put:
+      operationId: idOfEmpEndpoint3
+      parameters:
+      - description: Object to update.
+        in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/Employee'
+      responses:
+        "200":
+          $ref: '#/responses/EmpPUTResponse'
+        "404":
+          # $ref: '#/responses/_'
+          description: Record not found
+        "422":
+          # $ref: '#/responses/_'
+          description: Invalid Body type
+      summary: Update existing Employee record.
+      tags:
+      - employee-tag
 produces:
 - application/json
+responses:
+  EmpGETResponse:
+    description: successful operation.
+    schema:
+      $ref: '#/definitions/Employee'
+  EmpPOSTResponse:
+    description: successful operation.
+    schema:
+      $ref: '#/definitions/Employee'
+  EmpPUTResponse:
+    description: successful operation.
+    schema:
+      $ref: '#/definitions/Employee'
 schemes:
 - http
 securityDefinitions:

@@ -9,3 +9,7 @@ type Employee struct {
 	EmpID     int    `gorm:"column:emp_id;primary_key"`
 	Age       int    `gorm:"column:age`
 }
+
+type GetParam struct {
+	EmpId int
+}
