@@ -35,9 +35,9 @@ func (p *repo) CreateEmployee(emp models.Employee) (int, error) {
 	//result := p.DB.Create(&emp)
 
 	insertStatement := `INSERT INTO employees VALUES ($1,$2,$3,$4) RETURNING emp_id`
-	//p.DB.Exec(insertStatement)
+
 	result := p.DB.Exec(insertStatement, emp.FirstName, emp.LastName, emp.EmpID, emp.Age)
-	//p.DB.Exec(`INSERT INTO "employees" ("first_name","last_name","emp_id","age") VALUES ($1,$2,$3,$4)`,emp.FirstName, emp.LastName, emp.EmpID, emp.Age)
+
 	fmt.Println("=====", result)
 	//id := emp.ID
 	//err := result.Error
@@ -48,12 +48,6 @@ func (p *repo) CreateEmployee(emp models.Employee) (int, error) {
 
 func (p *repo) UpdateEmployee(emp models.Employee) (models.Employee, error) {
 
-	// oldEmp.FirstName = emp.FirstName
-	// oldEmp.LastName = emp.LastName
-	// oldEmp.Age = emp.Age
-	//err = p.DB.Save(&oldEmp).Error
-	// insertStatement := `INSERT INTO employees VALUES ($1,$2,$3,$4) RETURNING emp_id`
-	// p.DB.Exec(insertStatement, oldEmp.FirstName, oldEmp.LastName, oldEmp.EmpID, oldEmp.Age)
 	updateStatement := `UPDATE employees SET first_name = $2, last_name = $3, age = $4 WHERE emp_id = $1`
 	result := p.DB.Exec(updateStatement, emp.EmpID, emp.FirstName, emp.LastName, emp.Age)
 	fmt.Printf("%T", result)
@@ -69,11 +63,11 @@ func (p *repo) DeleteEmployee(id int) error {
 	p.DB.Where("Emp_Id=?", id).Find(&emp)
 	//err := p.DB.Delete(&emp).Error
 	deleteStatement := `DELETE FROM tbl_employee WHERE id = $1`
-	result := p.DB.Exec(deleteStatement, id)
+	err := p.DB.Exec(deleteStatement, id).Error
 	//count, _ := result.RowsAffected()
-	fmt.Println(result)
+	//fmt.Println(result)
 
-	return nil
+	return err
 }
 
 func CreateRepository(db *gorm.DB) CRUD {

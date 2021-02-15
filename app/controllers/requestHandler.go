@@ -103,12 +103,6 @@ func employeeCRUD(w http.ResponseWriter, r *http.Request) {
 }
 
 // RequestHandler Exported
-// GetUser godoc
-// @Summary Retrieves user based on given ID
-// @Produce json
-// @Param id path integer true "Empl ID"
-// @Success 200 {object} models.Employee
-// @Router /employee/{id} [get]
 func RequestHandler() {
 	http.HandleFunc("/employee", employeeCRUD)
 	fmt.Println("Running")
