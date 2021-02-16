@@ -105,6 +105,6 @@ func employeeCRUD(w http.ResponseWriter, r *http.Request) {
 // RequestHandler Exported
 func RequestHandler() {
 	http.HandleFunc("/employee", employeeCRUD)
-	fmt.Println("Running")
+	fmt.Println("Running, we are on")
 	http.ListenAndServe(":8080", nil)
 }

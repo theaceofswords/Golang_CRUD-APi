@@ -5,7 +5,7 @@
 //     Schemes: http
 //     BasePath: /
 //     Version: 1.0.0
-//     Host: http://localhost:8080/employee
+//     Host: http://localhost:8080
 //
 //     Consumes:
 //     - application/json
