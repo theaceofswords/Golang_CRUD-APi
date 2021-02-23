@@ -48,7 +48,10 @@ func employeeCRUD(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(msg)
 			//fmt.Println("error")
 		} else {
-			err = repository.CreateEmployee(emp)
+			//err = repository.CreateEmployee(emp)
+			err = nil
+			MQProducer(emp)
+
 			if err != nil {
 				msg := messageErr{err.Error(), http.StatusConflict, "ID already exists"}
 				w.WriteHeader(http.StatusConflict)
@@ -105,6 +108,6 @@ func employeeCRUD(w http.ResponseWriter, r *http.Request) {
 // RequestHandler Exported
 func RequestHandler() {
 	http.HandleFunc("/employee", employeeCRUD)
-	fmt.Println("Running, we are on")
+	fmt.Println("Running,.. ")
 	http.ListenAndServe(":8080", nil)
 }

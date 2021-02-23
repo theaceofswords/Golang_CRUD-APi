@@ -28,7 +28,26 @@ services:
       - database_postgres:/var/lib/postgresql/data
     networks:
       - network1
-    
+
+  # rabbit-mq:
+  #   image: rabbitmq:3-management-alpine
+  #   container_name: rabbitmq
+  #   volumes:
+  #     # - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
+  #     # - ./.docker/rabbitmq/data/:/var/lib/rabbitmq/
+  #     - rabbitmq/:/var/log/rabbitmq/    
+       
+  #   environment:
+  #     # - RABBITMQ_ERLANG_COOKIE=
+  #     - RABBITMQ_DEFAULT_USER=guest
+  #     - RABBITMQ_DEFAULT_PASS=guest
+  #   ports:
+  #    - 5672:5672
+  #    - 15672:15672    
+  #   networks:
+  #    - network1
+
+
 #   pgadmin:
 #     image: dpage/pgadmin4
 #     container_name: pgadmin_container
@@ -45,7 +64,8 @@ services:
 
 volumes:
   api:
-  database_postgres:                  
+  database_postgres: 
+  # rabbitmq:                 
 
 # Networks  to facilitate communication between containers
 networks:
